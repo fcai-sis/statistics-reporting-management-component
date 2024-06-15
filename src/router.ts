@@ -1,11 +1,8 @@
 import { Router } from "express";
+import statisticsRoutes from "./features/statistics/statistics.routes";
 
-import exampleRoutes from "./features/example/example.routes";
-
-const router: Router = Router();
-
-export default (): Router => {
-  exampleRoutes(router);
-
+export const statisticsRouter = () => {
+  const router = Router();
+  statisticsRoutes(router);
   return router;
 };
