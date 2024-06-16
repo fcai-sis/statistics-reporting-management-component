@@ -6,14 +6,14 @@ import { Request, Response } from "express";
  * */
 
 type HandlerRequest = Request<
-  {},
-  {},
   {
     courseId: string;
-  }
+  },
+  {},
+  {}
 >;
 const handler = async (req: HandlerRequest, res: Response) => {
-  const { courseId } = req.body;
+  const { courseId } = req.params;
   const course = await CourseModel.findById(courseId);
   if (!course) {
     return res.status(404).json({ message: "Course not found" });
