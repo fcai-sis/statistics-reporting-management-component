@@ -7,6 +7,7 @@ import getNationalityDistHandler from "./logic/handlers/getNationalityDistributi
 import getSuccessRateOfCourseHandler from "./logic/handlers/getSuccessRateOfCourse.handler";
 import getTotalHoursOfStudentHandler from "./logic/handlers/getTotalHoursOfStudent.handler";
 import getFailureRateOfCourseHandler from "./logic/handlers/getFailureRateOfCourse.handler";
+import calculateStudentGpaHandler from "./logic/handlers/calculateStudentGpa.handler";
 
 const statisticsRoutes = (router: Router) => {
   router.get(
@@ -30,6 +31,11 @@ const statisticsRoutes = (router: Router) => {
   router.get(
     "/get-total-hours-of-student/:studentId",
     asyncHandler(getTotalHoursOfStudentHandler)
+  );
+
+  router.get(
+    "/get-student-gpa/:studentId",
+    asyncHandler(calculateStudentGpaHandler)
   );
 };
 
