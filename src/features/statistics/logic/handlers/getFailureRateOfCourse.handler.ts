@@ -2,7 +2,7 @@ import { CourseModel, EnrollmentModel } from "@fcai-sis/shared-models";
 import { Request, Response } from "express";
 
 /*
- * Get the success rate of a specific course (number of students who passed the course / total number of students in the course)
+ * Get the failure rate of a specific course (number of students who failed the course / total number of students in the course)
  * */
 
 type HandlerRequest = Request<
@@ -27,7 +27,7 @@ const handler = async (req: HandlerRequest, res: Response) => {
       .json({ message: "No enrollments found for the course" });
   }
 
-  // get the number of students who passed the course
+  // get the number of students who failed the course
   const failedStudents = courseEnrollments.filter(
     (enrollment) => enrollment.status === "failed"
   );
@@ -35,7 +35,7 @@ const handler = async (req: HandlerRequest, res: Response) => {
   // get the total number of students in the course
   const totalNumberOfStudents = courseEnrollments.length;
 
-  // get the success rate of the course
+  // get the failure rate of the course
   const failureRate = (failedStudents.length / totalNumberOfStudents) * 100;
 
   const response = {
