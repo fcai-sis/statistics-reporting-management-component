@@ -6,6 +6,7 @@ import { paginationQueryParamsMiddleware } from "@fcai-sis/shared-middlewares";
 import getNationalityDistHandler from "./logic/handlers/getNationalityDistribution.handler";
 import getSuccessRateOfCourseHandler from "./logic/handlers/getSuccessRateOfCourse.handler";
 import getTotalHoursOfStudentHandler from "./logic/handlers/getTotalHoursOfStudent.handler";
+import getFailureRateOfCourseHandler from "./logic/handlers/getFailureRateOfCourse.handler";
 
 const statisticsRoutes = (router: Router) => {
   router.get(
@@ -19,6 +20,11 @@ const statisticsRoutes = (router: Router) => {
   router.get(
     "/get-success-rate-of-course/:courseId",
     asyncHandler(getSuccessRateOfCourseHandler)
+  );
+
+  router.get(
+    "/get-failure-rate-of-course/:courseId",
+    asyncHandler(getFailureRateOfCourseHandler)
   );
 
   router.get(
