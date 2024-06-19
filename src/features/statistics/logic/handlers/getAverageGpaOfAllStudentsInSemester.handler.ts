@@ -2,12 +2,11 @@ import { StudentSemesterModel } from "@fcai-sis/shared-models";
 import { Request, Response } from "express";
 
 /*
- * Get the average GPA of a student in a specific semester
+ * Get the average GPA of students in a specific semester
  * */
 
 type HandlerRequest = Request<
   {
-    studentId: string;
     semesterId: string;
   },
   {},
@@ -16,25 +15,26 @@ type HandlerRequest = Request<
 const handler = async (req: HandlerRequest, res: Response) => {
   const { semesterId } = req.params;
 
-  // find all GPAs of the student in the specified semester
+  // a StudentSemester record consists of studentId, semesterId, and cumulativeGPA, so we need to get the total GPA of all students in the semester
   const result = await StudentSemesterModel.find({
     semsterId: semesterId,
   });
 
-  // If the student is not found, return a 404 error
   if (!result.length) {
     return res
       .status(404)
-      .json({ message: "No records found for this student in this semester" });
+      .json({ message: "No records found for this semester" });
   }
-
-  const AverageGPA =
-    result.reduce((acc, curr) => acc + curr.gpa, 0) / result.length;
+  // calculate the average GPA of all students in the semester
+  const totalGpa = result.reduce(
+    (acc: any, curr: any) => acc + curr.cumulativeGPA,
+    0
+  );
+  const averageGpa = totalGpa / result.length;
 
   const response = {
-    AverageGPA,
+    averageGpa,
   };
-
   return res.status(200).json(response);
 };
 
