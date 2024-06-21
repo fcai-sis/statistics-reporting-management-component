@@ -10,11 +10,7 @@ import getFailureRateOfCourseHandler from "./logic/handlers/getFailureRateOfCour
 import calculateStudentGpaHandler from "./logic/handlers/calculateStudentGpa.handler";
 
 const statisticsRoutes = (router: Router) => {
-  router.get(
-    "/get-all-students",
-    paginationQueryParamsMiddleware,
-    asyncHandler(getAllStudentsHandler)
-  );
+  router.get("/get-all-students", asyncHandler(getAllStudentsHandler));
 
   router.get("/get-nationality-dist", asyncHandler(getNationalityDistHandler));
 
