@@ -1,5 +1,4 @@
 import { EnrollmentModel, StudentModel } from "@fcai-sis/shared-models";
-import env from "../../../../env";
 import { Request, Response } from "express";
 
 /*
@@ -46,21 +45,52 @@ const handler = async (req: HandlerRequest, res: Response) => {
     };
   });
 
-  // call calculateGpa endpoint
-  const studentGpa = await fetch(`${env.GRADING_API}/calculate-gpa`, {
-    method: "POST",
-    body: JSON.stringify({
-      marks: grades,
-    }),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  // call calculateGpa
+  const studentGpa = calculateGPA(grades);
 
-  const response = await studentGpa.json();
+  if (!studentGpa) {
+    return res.status(500).json({
+      message: "Error calculating GPA",
+    });
+  }
+
+  const response = {
+    GPA: studentGpa,
+  };
 
   return res.status(200).json(response);
 };
+
+function calculateGPA(marks: { weight: number; creditHours: number }[]) {
+  try {
+    // Initialize variables to store total weighted grade points and total credit hours
+    let totalGradePoints = 0;
+    let totalCreditHours = 0;
+
+    // Iterate through the list of marks
+    for (const mark of marks) {
+      // Retrieve the grade value from the grading system based on the mark
+
+      // Calculate grade points
+      const gradePoints = mark.weight * mark.creditHours;
+
+      // Add to total weighted grade points and total credit hours
+      totalGradePoints += gradePoints;
+      totalCreditHours += mark.creditHours;
+    }
+
+    // Calculate GPA
+    const gpa = totalGradePoints / totalCreditHours;
+
+    // Round GPA to two decimal places
+    const roundedGPA = Math.round(gpa * 100) / 100;
+
+    // Return the calculated GPA
+    return roundedGPA;
+  } catch (error: any) {
+    return null;
+  }
+}
 
 const calculateStudentGpaHandler = handler;
 
