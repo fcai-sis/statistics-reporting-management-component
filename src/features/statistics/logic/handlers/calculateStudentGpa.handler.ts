@@ -58,19 +58,16 @@ const handler = async (req: HandlerRequest, res: Response) => {
   // const { semesterId } = req.body;
   // find all passed enrollments for the student for the specific semester
   const passedEnrollments = await EnrollmentModel.find({
-    studentId,
-    status: "passed",
-  }).populate("courseId");
+    student: studentId,
+    status: "PASSED",
+  }).populate("course");
 
-  // each enrollment has an array of score objects (description, score)
+  console.log("passedEnrollments", passedEnrollments);
+
+  // each enrollment has a grades object consisting of termWork and finalExam
   const grades = passedEnrollments.map((enrollment) => {
-    const termWorkScoreSingleEnrollment = enrollment.scores.reduce(
-      (total: any, score: any) => total + score.score,
-      0
-    );
-    // get credit hours of the course
-    const creditHours = enrollment.courseId.creditHours;
-    const grade = termWorkScoreSingleEnrollment + enrollment.finalExamScore;
+    const creditHours = enrollment.course.creditHours;
+    const grade = enrollment.grades.termWork + enrollment.grades.finalExam;
     console.log("GRADE BEFORE SCALING", grade);
 
     // give the actual grading based on the TEST_BYLAW object
