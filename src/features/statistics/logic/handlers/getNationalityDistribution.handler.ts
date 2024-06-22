@@ -1,4 +1,4 @@
-import { StudentModel } from "@fcai-sis/shared-models";
+import { NationalityEnum, StudentModel } from "@fcai-sis/shared-models";
 import { Request, Response } from "express";
 
 /*
@@ -8,10 +8,10 @@ const handler = async (req: Request, res: Response) => {
   const students = await StudentModel.find();
   // filter egyptian students and foreign students
   const egyptianStudents = students.filter(
-    (student) => student.nationality === "egyptian"
+    (student) => student.nationality === NationalityEnum[0]
   );
   const foreignStudents = students.filter(
-    (student) => student.nationality === "foreigner"
+    (student) => student.nationality === NationalityEnum[1]
   );
 
   // get the number of egyptian students and foreign students
