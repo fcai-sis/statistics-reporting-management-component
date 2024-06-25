@@ -21,10 +21,10 @@ const handler = async (req: HandlerRequest, res: Response) => {
     status: "PASSED",
   }).populate("course");
 
-  // each enrollment has a grades object consisting of termWork and finalExam
+  // each enrollment consists of a termWorkMark, finalExamMark, and grade
   const grades = passedEnrollments.map((enrollment) => {
     const creditHours = enrollment.course.creditHours;
-    const grade = enrollment.grades.termWork + enrollment.grades.finalExam;
+    const grade = enrollment.termWorkMark + enrollment.finalExamMark;
     let weight = 0;
     // loop over the bylaw.gradeWeights map and find the grade weight
     student.bylaw.gradeWeights.forEach((bylawWeight: any, key: any) => {
@@ -34,7 +34,7 @@ const handler = async (req: HandlerRequest, res: Response) => {
       ) {
         weight = bylawWeight.weight;
 
-        enrollment.enrollmentMark = key;
+        enrollment.grade = key;
         enrollment.save();
       }
     });
@@ -55,7 +55,8 @@ const handler = async (req: HandlerRequest, res: Response) => {
   }
 
   const response = {
-    GPA: studentGpa,
+    GPA: studentGpa.gpa,
+    totalCreditHours: studentGpa.totalCreditHours,
   };
 
   return res.status(200).json(response);
@@ -85,8 +86,11 @@ function calculateGPA(marks: { weight: number; creditHours: number }[]) {
     // Round GPA to two decimal places
     const roundedGPA = Math.round(gpa * 100) / 100;
 
-    // Return the calculated GPA
-    return roundedGPA;
+    // Return the calculated GPA alongside the total credit hours
+    return {
+      gpa: roundedGPA,
+      totalCreditHours,
+    };
   } catch (error: any) {
     return null;
   }
