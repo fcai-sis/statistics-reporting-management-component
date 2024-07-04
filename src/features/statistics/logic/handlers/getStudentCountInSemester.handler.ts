@@ -7,7 +7,6 @@ import { Request, Response } from "express";
 
 type HandlerRequest = Request<
   {
-    studentId: string;
     semesterId: string;
   },
   {},
@@ -18,14 +17,18 @@ const handler = async (req: HandlerRequest, res: Response) => {
 
   // find students in the specified semester
   const result = await StudentSemesterModel.find({
-    semesterId: semesterId,
+    semester: semesterId,
   });
 
-  // If the student is not found, return a 404 error
+  // If the students are not found, return a 404 error
   if (!result.length) {
-    return res
-      .status(404)
-      .json({ message: "No records found for this student in this semester" });
+    return res.status(404).json({
+      errors: [
+        {
+          message: "No students found in the semester",
+        },
+      ],
+    });
   }
 
   const studentCount = result.length;

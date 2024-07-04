@@ -1,4 +1,8 @@
-import { CourseModel, EnrollmentModel } from "@fcai-sis/shared-models";
+import {
+  CourseModel,
+  EnrollmentModel,
+  EnrollmentStatusEnum,
+} from "@fcai-sis/shared-models";
 import { Request, Response } from "express";
 
 /*
@@ -7,39 +11,55 @@ import { Request, Response } from "express";
 
 type HandlerRequest = Request<
   {
-    courseId: string;
+    courseCode: string;
   },
   {},
   {}
 >;
 const handler = async (req: HandlerRequest, res: Response) => {
-  const { courseId } = req.params;
-  const course = await CourseModel.findById(courseId);
+  const { courseCode } = req.params;
+  console.log(courseCode);
+
+  const course = await CourseModel.findOne({
+    code: courseCode,
+  });
   if (!course) {
-    return res.status(404).json({ message: "Course not found" });
+    return res.status(404).json({
+      errors: [
+        {
+          message: "Course not found",
+        },
+      ],
+    });
   }
   // get all enrollments for the course
-  const courseEnrollments = await EnrollmentModel.find({ courseId });
+  const courseEnrollments = await EnrollmentModel.find({
+    course: course._id,
+  });
 
   if (!courseEnrollments.length) {
-    return res
-      .status(404)
-      .json({ message: "No enrollments found for the course" });
+    return res.status(404).json({
+      errors: [
+        {
+          message: "No enrollments found for the course",
+        },
+      ],
+    });
   }
 
   // get the number of students who failed the course
   const failedStudents = courseEnrollments.filter(
-    (enrollment) => enrollment.status === "failed"
+    (enrollment) => enrollment.status === EnrollmentStatusEnum[2]
   );
 
   // get the total number of students in the course
   const totalNumberOfStudents = courseEnrollments.length;
 
-  // get the failure rate of the course
-  const failureRate = (failedStudents.length / totalNumberOfStudents) * 100;
+  // get the success rate of the course
+  const successRate = (failedStudents.length / totalNumberOfStudents) * 100;
 
   const response = {
-    failureRate,
+    successRate,
   };
 
   return res.status(200).json(response);

@@ -1,4 +1,4 @@
-import { StudentSemesterModel, StudentModel } from "@fcai-sis/shared-models";
+import { StudentSemesterModel } from "@fcai-sis/shared-models";
 import { Request, Response } from "express";
 
 /*
@@ -20,26 +20,19 @@ const handler = async (req: HandlerRequest, res: Response) => {
 
   // Find the student with the highest GPA in the specified semester
   const bestStudentSemester = await StudentSemesterModel.findOne({
-    semesterId: semesterId,
-  }).sort({
-    cumulativeGpa: -1,
-  });
+    semester: semesterId,
+  })
+    .sort({
+      cumulativeGpa: -1,
+    })
+    .populate("student");
 
   // Find the student with the highest GPA in the specified semester
 
-  const bestStudent = await StudentModel.findById(
-    bestStudentSemester.studentId
-  );
-  if (!bestStudent) {
-    return res
-      .status(404)
-      .json({ message: "Best-performing student not found" });
-  }
-
   const response = {
     bestStudent: {
-      id: bestStudent._id,
-      name: bestStudent.name,
+      id: bestStudentSemester.student._id,
+      name: bestStudentSemester.student.fullName,
       gpa: bestStudentSemester.cumulativeGpa,
     },
   };
