@@ -6,8 +6,7 @@ import getNationalityDistHandler from "./logic/handlers/getNationalityDistributi
 import getSuccessRateOfCourseHandler from "./logic/handlers/getSuccessRateOfCourse.handler";
 import getTotalHoursOfStudentHandler from "./logic/handlers/getTotalHoursOfStudent.handler";
 import getFailureRateOfCourseHandler from "./logic/handlers/getFailureRateOfCourse.handler";
-import calculateStudentGpaHandler from "./logic/handlers/calculateStudentGpa.handler";
-import getTop50StudentsHandler from "./logic/handlers/getTop50Students.handler";
+import getTopStudentsHandler from "./logic/handlers/getTop50Students.handler";
 
 const statisticsRoutes = (router: Router) => {
   router.get("/get-all-students", asyncHandler(getAllStudentsHandler));
@@ -29,16 +28,13 @@ const statisticsRoutes = (router: Router) => {
     asyncHandler(getTotalHoursOfStudentHandler)
   );
 
-  router.get(
-    "/get-student-gpa/:studentId",
-    asyncHandler(calculateStudentGpaHandler)
-  );
+  // router.get(
+  //   "/get-student-gpa/:studentId",
+  //   asyncHandler(calculateStudentGpaHandler)
+  // );
 
   //TODO: TEST THIS WHEN STUDENTSEMESTER IS READY
-  router.get(
-    "/get-top-50-students",
-    asyncHandler(getTop50StudentsHandler as any)
-  );
+  router.get("/students/top", asyncHandler(getTopStudentsHandler as any));
 };
 
 export default statisticsRoutes;

@@ -1,9 +1,7 @@
 import {
-  DepartmentType,
-  EnrollmentModel,
-  SemesterModel,
+  AcademicStudentModel,
+  DepartmentModel,
   StudentModel,
-  StudentSemesterModel,
 } from "@fcai-sis/shared-models";
 import { Request, Response } from "express";
 
@@ -11,28 +9,35 @@ import { Request, Response } from "express";
  * Gets the top 50 students based on their GPA for each department
  * */
 
+type DepartmentCode = String | "GENERAL";
 type HandlerRequest = Request<
   {},
   {},
   {},
   {
-    department: DepartmentType;
-    level: number;
+    major?: DepartmentCode;
+    level?: string;
+    limit?: string;
   }
 >;
-const handler = async (req: HandlerRequest, res: Response) => {
-  const { department, level } = req.query;
+const getTopStudentsHandler = async (req: HandlerRequest, res: Response) => {
+  const { major, level, limit } = req.query;
+  const levelNumber = level ? parseInt(level) : undefined;
+  const limitNumber = limit ? parseInt(limit) : 50;
 
-  const latestSemester = SemesterModel.findOne({}).sort({ createdAt: -1 });
+  const department = await DepartmentModel.findOne({ code: major });
 
-  const topStudents = await StudentSemesterModel.aggregate([
-    {
-      $match: {
-        semester: latestSemester,
-        semesterDepartment: department,
-        semesterLevel: level,
-      },
+  const matchFilter: any = {
+    $match: {
+      ...(major !== "GENERAL"
+        ? { major: department?._id }
+        : { major: { $exists: false } }),
+      ...(levelNumber ? { level: levelNumber } : {}),
     },
+  };
+
+  const students = await AcademicStudentModel.aggregate([
+    matchFilter,
     {
       $lookup: {
         from: StudentModel.collection.name,
@@ -42,40 +47,32 @@ const handler = async (req: HandlerRequest, res: Response) => {
       },
     },
     {
-      $unwind: "$student",
-    },
-    {
-      $sort: {
-        GPA: -1,
+      $unwind: {
+        path: "$student",
+        preserveNullAndEmptyArrays: false,
       },
-    },
-    {
-      $limit: 50,
     },
     {
       $project: {
-        student: {
-          studentId: 1,
-          fullName: 1,
-        },
-        GPA: 1,
+        _id: 0,
+        gpa: "$gpa",
+        major: "$major",
+        level: "$level",
+        fullName: "$student.fullName",
+        studentId: "$student.studentId",
       },
+    },
+    {
+      $sort: {
+        gpa: -1,
+      },
+    },
+    {
+      $limit: limitNumber,
     },
   ]);
 
-  const response = {
-    topStudents: topStudents.map((student: any) => {
-      return {
-        studentId: student.student.studentId,
-        fullName: student.student.fullName,
-        GPA: student.GPA,
-      };
-    }),
-  };
-
-  return res.status(200).json(response);
+  return res.status(200).json({ students });
 };
 
-const getTop50StudentsHandler = handler;
-
-export default getTop50StudentsHandler;
+export default getTopStudentsHandler;

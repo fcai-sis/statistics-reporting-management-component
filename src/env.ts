@@ -4,7 +4,7 @@ export const env = {
   LOGS_PATH: process.env.LOGS_PATH,
   MONGO_URI: process.env.MONGO_URI,
   JWT_SECRET: process.env.JWT_SECRET,
-  GRADING_API: process.env.GRADING_API,
+  // GRADING_API: process.env.GRADING_API,
 };
 
 export const isDev = env.NODE_ENV === "development";
